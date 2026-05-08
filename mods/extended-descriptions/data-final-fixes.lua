@@ -75,6 +75,7 @@ local prefixes = {
 	Z = 1000000000000000000000,
 	Y = 1000000000000000000000000
 }
+
 local function energy_to_number(energy)
 	local amount, unit, _ = string.match(energy, '(%d+)(%a-)[JW]')
 	return tonumber(amount) * prefixes[unit]

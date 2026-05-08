@@ -1259,6 +1259,7 @@ bobmods.lib.tech.add_prerequisite("Schall-pickup-tower-4", "advanced-electronics
 bobmods.lib.tech.add_prerequisite("bob-electric-energy-accumulators-3", "advanced-electronics-3") --аккумуляторы 3  под контроллеры 3
 bobmods.lib.tech.add_prerequisite("Schall-pickup-tower-4", "utility-science-pack") --башня сбора 4  под утилити пакеты
 bobmods.lib.tech.add_prerequisite("railway", "concrete") --рельсы под БЕТОН наконец-то
+bobmods.lib.tech.remove_prerequisite("railway", "logistics-2") --рельсы под БЕТОН наконец-то
 bobmods.lib.tech.add_prerequisite ("worker-robot-battery-1", "chemical-science-pack") --батареи роботов под синие банки
 bobmods.lib.tech.add_prerequisite ("worker-robot-battery-4", "production-science-pack") --батареи роботов под производственн пакеты
 bobmods.lib.tech.add_prerequisite("worker-robot-battery-8", "utility-science-pack") --батареи роботов под утилити пакеты
@@ -1665,7 +1666,7 @@ bobmods.lib.tech.add_prerequisite("inserter-capacity-bonus-5", "advanced-logisti
 bobmods.lib.tech.add_prerequisite("inserter-capacity-bonus-7", "utility-science-pack")
 bobmods.lib.tech.add_prerequisite("logistic-science-pack", "logistics")
 bobmods.lib.tech.add_prerequisite("steel-processing", "electric-mining")
-bobmods.lib.tech.add_prerequisite("logistics", "electronics")
+--bobmods.lib.tech.add_prerequisite("logistics", "electronics")
 bobmods.lib.tech.add_prerequisite("chemical-science-pack", "engine")
 bobmods.lib.tech.add_prerequisite("military-science-pack", "gun-turret")
 bobmods.lib.tech.add_prerequisite("production-science-pack", "electric-engine")
@@ -1675,6 +1676,8 @@ bobmods.lib.tech.add_prerequisite("advanced-electronics", "angels-sulfur-process
 bobmods.lib.tech.add_prerequisite("braking-force-3", "advanced-logistic-science-pack")
 bobmods.lib.tech.add_prerequisite("braking-force-6", "utility-science-pack")
 bobmods.lib.tech.add_prerequisite("logistics-3", "titanium-processing")
+bobmods.lib.tech.remove_prerequisite("logistics-3", "cobalt-processing")
+bobmods.lib.tech.add_prerequisite("logistics-4", "cobalt-processing")
 bobmods.lib.tech.add_prerequisite("research-speed-5", "production-science-pack")
 bobmods.lib.tech.add_prerequisite("research-speed-6", "utility-science-pack")
 bobmods.lib.tech.add_prerequisite("electric-energy-distribution-2", "concrete")

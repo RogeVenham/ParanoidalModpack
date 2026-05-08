@@ -35,6 +35,11 @@ require("prototypes.entity.entity") --фиксы неправильных имё
 --фиксы совместимости для модов
 require("prototypes.mod_compatibility.Transport_Drones")
 require("prototypes.mod_compatibility.JunkTrain")
+require("prototypes.mod_compatibility.Bio_Industries")
+require("prototypes.mod_compatibility.bobenemies_no_native_spawn")
+require("prototypes.mod_compatibility.Texugo_windgenerator")
+require("prototypes.mod_compatibility.LootingSpaceshipWrecks")
+require("prototypes.mod_compatibility.aai-industry")
 
 -------------------------------------------------------------------------------------------------
 require("prototypes.Angels_RBOS") --Angels_RBOS Angel's Re-enabled Basic Ore Smelting
@@ -67,3 +72,5 @@ end
 
 --должно быть последним. После всех рецептов.
 require("recipes.flowfix")
+require("recipes.belts-late-fix")
+require("recipes.miniloaders-late-fix")
