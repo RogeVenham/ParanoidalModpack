@@ -55,12 +55,14 @@ set_belt_recipe("ultimate-transport-belt", {
 }, 1)
 
 set_belt_recipe("underground-belt", {
+    { "basic-underground-belt", 1 },
     { "transport-belt", 5 },
     { "tin-plate", 2 },
     { "motor", 2 },
 }, 2)
 
 set_belt_recipe("fast-underground-belt", {
+    { "underground-belt", 1 },
     { "fast-transport-belt", 11 },
     { "bronze-alloy", 2 },
     { "steel-bearing", 2 },
@@ -68,6 +70,7 @@ set_belt_recipe("fast-underground-belt", {
 
 
 set_belt_recipe("express-underground-belt", {
+    { "fast-underground-belt", 1 },
     { "express-transport-belt", 17 },
     { "aluminium-plate", 2 },
     { "titanium-bearing", 2 },
@@ -75,6 +78,7 @@ set_belt_recipe("express-underground-belt", {
 
 
 set_belt_recipe("turbo-underground-belt", {
+    { "express-underground-belt", 1 },
     { "turbo-transport-belt", 23 },
     { "plastic-bar", 2 },
     { "cobalt-steel-bearing", 2 },
@@ -82,6 +86,7 @@ set_belt_recipe("turbo-underground-belt", {
 
 
 set_belt_recipe("ultimate-underground-belt", {
+    { "turbo-underground-belt", 1 },
     { "ultimate-transport-belt", 27 },
     { "nitinol-gear-wheel", 2 },
     { "nitinol-bearing", 2 },
@@ -95,6 +100,7 @@ set_belt_recipe("basic-splitter", {
 }, 1)
 
 set_belt_recipe("splitter", {
+    { "basic-splitter", 1 },
     { "transport-belt", 2 },
     { "tin-plate", 4 },
     { "motor", 2 },
@@ -102,6 +108,7 @@ set_belt_recipe("splitter", {
 }, 1)
 
 set_belt_recipe("fast-splitter", {
+    { "splitter", 1 },
     { "fast-transport-belt", 2 },
     { "bronze-alloy", 4 },
     { "steel-bearing", 2 },
@@ -109,6 +116,7 @@ set_belt_recipe("fast-splitter", {
 }, 1)
 
 set_belt_recipe("express-splitter", {
+    { "fast-splitter", 1 },
     { "express-transport-belt", 2 },
     { "aluminium-plate", 4 },
     { "titanium-bearing", 2 },
@@ -116,6 +124,7 @@ set_belt_recipe("express-splitter", {
 }, 1)
 
 set_belt_recipe("turbo-splitter", {
+    { "express-splitter", 1 },
     { "turbo-transport-belt", 2 },
     { "plastic-bar", 4 },
     { "cobalt-steel-bearing", 2 },
@@ -123,6 +132,7 @@ set_belt_recipe("turbo-splitter", {
 }, 1)
 
 set_belt_recipe("ultimate-splitter", {
+    { "turbo-splitter", 1 },
     { "ultimate-transport-belt", 2 },
     { "nitinol-alloy", 4 },
     { "nitinol-bearing", 2 },

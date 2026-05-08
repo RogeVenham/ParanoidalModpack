@@ -49,26 +49,31 @@ set_or_create_loader_recipe("basic-miniloader", {
 }, "basic-miniloader", 1)
 
 set_or_create_loader_recipe("miniloader", {
+    { "basic-miniloader", 1 },
     { "underground-belt", 1 },
     { "inserter", 8 },
 }, "miniloader", 1)
 
 set_or_create_loader_recipe("fast-miniloader", {
+    { "miniloader", 1 },
     { "fast-underground-belt", 1 },
     { "long-handed-inserter", 8 },
 }, "fast-miniloader", 1)
 
 set_or_create_loader_recipe("express-miniloader", {
+    { "fast-miniloader", 1 },
     { "express-underground-belt", 1 },
     { "fast-inserter", 8 },
 }, "express-miniloader", 1)
 
 set_or_create_loader_recipe("turbo-miniloader", {
+    { "express-miniloader", 1 },
     { "turbo-underground-belt", 1 },
     { "turbo-inserter", 8 },
 }, "turbo-miniloader", 1)
 
 set_or_create_loader_recipe("ultimate-miniloader", {
+    { "turbo-miniloader", 1 },
     { "ultimate-underground-belt", 1 },
     { "express-inserter", 8 },
 }, "ultimate-miniloader", 1)
@@ -80,26 +85,31 @@ set_or_create_loader_recipe("basic-filter-miniloader", {
 }, "basic-filter-miniloader", 1)
 
 set_or_create_loader_recipe("filter-miniloader", {
+    { "basic-filter-miniloader", 1 },
     { "underground-belt", 1 },
     { "yellow-filter-inserter", 8 },
 }, "filter-miniloader", 1)
 
 set_or_create_loader_recipe("fast-filter-miniloader", {
+    { "filter-miniloader", 1 },
     { "fast-underground-belt", 1 },
     { "red-filter-inserter", 8 },
 }, "fast-filter-miniloader", 1)
 
 set_or_create_loader_recipe("express-filter-miniloader", {
+    { "fast-filter-miniloader", 1 },
     { "express-underground-belt", 1 },
     { "filter-inserter", 8 },
 }, "express-filter-miniloader", 1)
 
 set_or_create_loader_recipe("turbo-filter-miniloader", {
+    { "express-filter-miniloader", 1 },
     { "turbo-underground-belt", 1 },
     { "turbo-filter-inserter", 8 },
 }, "turbo-filter-miniloader", 1)
 
 set_or_create_loader_recipe("ultimate-filter-miniloader", {
+    { "turbo-filter-miniloader", 1 },
     { "ultimate-underground-belt", 1 },
     { "express-filter-inserter", 8 },
 }, "ultimate-filter-miniloader", 1)
