@@ -60,8 +60,8 @@ data:extend({
     icon = "__aai-industry__/graphics/icons/burner-filter-inserter.png",
     icon_size = 64, icon_mipmaps = 1,
     --flags = {},
-	subgroup = "bob-logistic-tier-0",
-    order = "d[inserter]-1[burner-filter-inserter]",
+	  subgroup = "bob-logistic-tier-0",
+    order = "e[inserter]-a[burner]-b[filter]",
     place_result = "burner-filter-inserter",
     stack_size = 50
   },
