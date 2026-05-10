@@ -24,35 +24,35 @@ local function set_belt_recipe(recipe_name, ingredients, result_count)
 end
 
 set_belt_recipe("transport-belt", {
-    { "basic-transport-belt", 1 },
-    { "tin-plate", 1 },
-    { "motor", 1 },
-}, 1)
+    { "basic-transport-belt", 2 },
+    { "tin-plate", 2 },
+    { "motor", 2 },
+}, 2)
 
 
 set_belt_recipe("fast-transport-belt", {
-    { "transport-belt", 1 },
-    { "bronze-alloy", 1 },
-    { "steel-bearing", 1 },
-}, 1)
+    { "transport-belt", 2 },
+    { "bronze-alloy", 2 },
+    { "steel-bearing", 2 },
+}, 2)
 
 set_belt_recipe("express-transport-belt", {
-    { "fast-transport-belt", 1 },
-    { "aluminium-plate", 1 },
-    { "titanium-bearing", 1 },
-}, 1)
+    { "fast-transport-belt", 2 },
+    { "aluminium-plate", 2 },
+    { "titanium-bearing", 2 },
+}, 2)
 
 set_belt_recipe("turbo-transport-belt", {
-    { "express-transport-belt", 1 },
-    { "plastic-bar", 1 },
-    { "cobalt-steel-bearing", 1 },
-}, 1)
+    { "express-transport-belt", 2 },
+    { "plastic-bar", 2 },
+    { "cobalt-steel-bearing", 2 },
+}, 2)
 
 set_belt_recipe("ultimate-transport-belt", {
-    { "turbo-transport-belt", 1 },
-    { "nitinol-gear-wheel", 1 },
-    { "nitinol-bearing", 1 },
-}, 1)
+    { "turbo-transport-belt", 2 },
+    { "nitinol-gear-wheel", 2 },
+    { "nitinol-bearing", 2 },
+}, 2)
 
 set_belt_recipe("underground-belt", {
     { "basic-underground-belt", 1 },
