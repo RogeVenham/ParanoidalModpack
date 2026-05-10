@@ -84,6 +84,26 @@ set_or_create_loader_recipe("basic-filter-miniloader", {
     { "burner-filter-inserter", 8 },
 }, "basic-filter-miniloader", 1)
 
+if data.raw.technology["basic-miniloader"] and data.raw.recipe["basic-filter-miniloader"] then
+    bobmods.lib.tech.add_recipe_unlock("basic-miniloader", "basic-filter-miniloader")
+end
+
+local basic_miniloader_item = data.raw.item["basic-miniloader"]
+local basic_filter_miniloader_item = data.raw.item["basic-filter-miniloader"]
+local basic_filter_miniloader_recipe = data.raw.recipe["basic-filter-miniloader"]
+
+if basic_miniloader_item and basic_filter_miniloader_item then
+    local filter_order = (basic_miniloader_item.order or "e[miniloader]-1[basic-underground-belt]") .. "-a[filter]"
+
+    basic_filter_miniloader_item.subgroup = basic_miniloader_item.subgroup
+    basic_filter_miniloader_item.order = filter_order
+
+    if basic_filter_miniloader_recipe then
+        basic_filter_miniloader_recipe.subgroup = basic_miniloader_item.subgroup
+        basic_filter_miniloader_recipe.order = filter_order
+    end
+end
+
 set_or_create_loader_recipe("filter-miniloader", {
     { "basic-filter-miniloader", 1 },
     { "underground-belt", 1 },
