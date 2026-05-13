@@ -244,6 +244,11 @@
     },
     
     {
+      "name": "ChangeMapSettings",
+      "enabled": false
+    },
+    
+    {
       "name": "chunk-pregenerator",
       "enabled": true
     },

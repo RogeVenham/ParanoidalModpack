@@ -37,9 +37,12 @@ require("prototypes.mod_compatibility.Transport_Drones")
 require("prototypes.mod_compatibility.JunkTrain")
 require("prototypes.mod_compatibility.Bio_Industries")
 require("prototypes.mod_compatibility.bobenemies_no_native_spawn")
+require("prototypes.mod_compatibility.RampantFixed_sounds")
+require("prototypes.mod_compatibility.SchallTankPlatoon")
 require("prototypes.mod_compatibility.Texugo_windgenerator")
 require("prototypes.mod_compatibility.LootingSpaceshipWrecks")
 require("prototypes.mod_compatibility.aai-industry")
+require("prototypes.mod_compatibility.bobplates-restack")
 
 -------------------------------------------------------------------------------------------------
 require("prototypes.Angels_RBOS") --Angels_RBOS Angel's Re-enabled Basic Ore Smelting
