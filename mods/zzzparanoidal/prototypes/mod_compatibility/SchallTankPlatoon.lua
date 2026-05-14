@@ -172,6 +172,6 @@ remove_recipe_unlock("Schall-sniper-rifle", "Schall-sniper-rifle")
 add_recipe_unlock("military-2", "Schall-sniper-rifle")
 
 local schall_sniper_technology = data.raw.technology and data.raw.technology["Schall-sniper-rifle"]
-if schall_sniper_technology and (not schall_sniper_technology.effects or #schall_sniper_technology.effects == 0) then
+if schall_sniper_technology then
   schall_sniper_technology.hidden = true
 end

@@ -77,3 +77,5 @@ end
 require("recipes.flowfix")
 require("recipes.belts-late-fix")
 require("recipes.miniloaders-late-fix")
+
+require("prototypes.mod_compatibility.combat_sound_aggregation")
