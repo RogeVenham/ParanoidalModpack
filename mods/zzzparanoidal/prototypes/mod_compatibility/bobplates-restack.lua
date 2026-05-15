@@ -8,15 +8,36 @@ if not restack_plates_setting or restack_plates_setting.value <= 0 then return e
 
 local plate_stack_size = restack_plates_setting.value
 
+local metallurgy_items = {
+  ["iron-plate"] = true,
+  ["copper-plate"] = true,
+  ["steel-plate"] = true,
+  ["tin-plate"] = true,
+  ["silver-plate"] = true,
+  ["lead-plate"] = true,
+  ["gold-plate"] = true,
+  ["nickel-plate"] = true,
+  ["zinc-plate"] = true,
+  ["aluminium-plate"] = true,
+  ["titanium-plate"] = true,
+  ["tungsten-plate"] = true,
+  ["silicon"] = true,
+  ["lithium"] = true,
+  ["cobalt-plate"] = true,
+  ["bronze-alloy"] = true,
+  ["brass-alloy"] = true,
+  ["copper-tungsten-alloy"] = true,
+  ["tungsten-carbide"] = true,
+  ["gunmetal-alloy"] = true,
+  ["invar-alloy"] = true,
+  ["nitinol-alloy"] = true,
+  ["cobalt-steel-alloy"] = true,
+  ["solder-alloy"] = true,
+}
+
 local metallurgy_subgroups = {
   ["bob-material"] = true,
   ["bob-alloy"] = true,
-}
-
-local base_plate_items = {
-  "iron-plate",
-  "copper-plate",
-  "steel-plate",
 }
 
 local function has_flag(prototype, flag)
@@ -37,11 +58,7 @@ local function apply_plate_stack_size(item)
 end
 
 for _, item in pairs(data.raw.item or {}) do
-  if metallurgy_subgroups[item.subgroup] then
+  if metallurgy_items[item.name] or metallurgy_subgroups[item.subgroup] then
     apply_plate_stack_size(item)
   end
-end
-
-for _, item_name in pairs(base_plate_items) do
-  apply_plate_stack_size(data.raw.item and data.raw.item[item_name])
 end

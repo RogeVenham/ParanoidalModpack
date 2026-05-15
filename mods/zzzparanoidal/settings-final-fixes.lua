@@ -138,6 +138,8 @@ if mods["railloader"] then
     set_settings_default_value("bool-setting", "railloader-show-configuration-messages", false)
 end
 if mods["RampantFixed"] then
+    set_settings_default_value("bool-setting", "rampantFixed--newEnemies", true)
+    set_settings_default_value("bool-setting", "rampantFixed--allowOtherEnemies", false)
     set_settings_default_value("int-setting", "rampantFixed--attackWaveMaxSize", 55)
     set_settings_default_value("int-setting", "rampantFixed--maxNumberOfBuilders", 25)
     set_settings_default_value("int-setting", "rampantFixed--maxNumberOfSquads", 20)
@@ -159,6 +161,7 @@ if mods["robot-attrition"] then
     set_settings_default_value("double-setting", "robot-attrition-factor", 0.4)
 end
 if mods["rso-mod"] then
+    set_settings_default_value("bool-setting", "rso-vanilla-biter-generation", false)
     set_settings_default_value("double-setting", "rso-infinite-ore-threshold", 0.99)
     set_settings_default_value("bool-setting", "rso-remove-trees", true)
     set_settings_default_value("bool-setting", "rso-use-donuts", true)
@@ -364,6 +367,7 @@ if mods["RampantFixed"] then
     set_settings_default_value("bool-setting", "rampantFixed--allowLongRangeImmunity", false)
     set_settings_default_value("bool-setting", "rampantFixed--allowOneshotProtection", false)
     set_settings_default_value("bool-setting", "rampantFixed--removeBloodParticles", true)
+    set_settings_default_value("bool-setting", "rampantFixed--showAdminMenu", false)
     set_settings_default_value("int-setting", "rampantFixed--tierEnd", 10)
     set_settings_default_value("int-setting", "rampantFixed--unitAndSpawnerFadeTime", 20)
 end

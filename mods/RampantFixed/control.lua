@@ -364,6 +364,8 @@ local function setNewEnemySide()
 	universe["NEW_ENEMIES_SIDE"] = settings.startup["rampantFixed--newEnemiesSide"].value
 end
 
+local onEnemyBaseBuild
+
 local function onBuild(event)
     local entity = event.created_entity or event.entity
     if entity.valid then
@@ -372,7 +374,10 @@ local function onBuild(event)
 		if not map then
 			return
 		end	
-        if (entity.type == "resource") and (entity.force.name == "neutral") then
+		if (entity.force.name == "enemy") and ((entity.type == "unit-spawner") or (entity.type == "turret")) then
+			onEnemyBaseBuild({entity = entity, tick = event.tick or game.tick})
+			return
+		elseif (entity.type == "resource") and (entity.force.name == "neutral") then
             registerResource(entity, map)
         else
             accountPlayerEntity(entity, map, true, false)
@@ -655,7 +660,7 @@ local function onDeath(event)
     end
 end
 
-local function onEnemyBaseBuild(event)
+onEnemyBaseBuild = function(event)
     local entity = event.entity
     if entity.valid then
         local map = universe.maps[entity.surface.index]
@@ -675,14 +680,16 @@ local function onEnemyBaseBuild(event)
 				local thisIsRampantEnemy = false
                 base = findNearbyBase(map, chunk, MAXIMUM_BASE_RADIUS, BASE_CHANGING_CHANCE)
                 if not base then
-					thisIsRampantEnemy = thisIsNewEnemyPosition(universe, chunk.x, chunk.y)
+					thisIsRampantEnemy = (not universe.ALLOW_OTHER_ENEMIES) or thisIsNewEnemyPosition(universe, chunk.x, chunk.y)
                     base = createBase(map,
                                       chunk,
                                       event.tick,
 									  thisIsRampantEnemy)
+                elseif not universe.ALLOW_OTHER_ENEMIES then
+					base.thisIsRampantEnemy = true
                 end
 				if base and base.thisIsRampantEnemy then
-					if VANILLA_ENTITIES[entity.name] or ((not universe.ALLOW_OTHER_ENEMIES) and (mRandom()<0.8)) then	-- if change this, look also chunkUtils.initialScan
+					if VANILLA_ENTITIES[entity.name] or (not universe.ALLOW_OTHER_ENEMIES) then	-- if change this, look also chunkUtils.initialScan
 						entity = upgradeEntity(entity,
 										   base.alignment,
 										   map ,nil, true)
@@ -1422,6 +1429,11 @@ function surfaceStatusClick(guiElement)
 end
 
 local function replaceNewEnemiesNests()
+	if universe and universe.NEW_ENEMIES and (not universe.ALLOW_OTHER_ENEMIES) then
+		game.print("Paranoidal: Rampant-only enemy mode is enabled; restoring vanilla enemies is disabled.")
+		return
+	end
+
 	local totalReplaced = 0
 	for _,surface in pairs(game.surfaces) do
 		local buildings = surface.find_entities_filtered({force = "enemy", type={"turret", "unit-spawner"}})
@@ -1473,6 +1485,177 @@ local function replaceNewEnemiesNests()
 	end	
 	game.print({"description.rampantFixed--msg_replaceNewEnemiesNests", totalReplaced})
 	universe.NEW_ENEMIES = false
+end
+
+local PARANOIDAL_NATIVE_ENEMY_UNITS = {
+	["small-biter"] = true,
+	["medium-biter"] = true,
+	["big-biter"] = true,
+	["behemoth-biter"] = true,
+	["small-spitter"] = true,
+	["medium-spitter"] = true,
+	["big-spitter"] = true,
+	["behemoth-spitter"] = true,
+}
+
+local PARANOIDAL_NATIVE_ENEMY_BUILDINGS = {
+	["bob-biter-spawner"] = true,
+	["bob-spitter-spawner"] = true,
+	["bob-super-spawner"] = true,
+	["bob-big-explosive-worm-turret"] = true,
+	["bob-big-fire-worm-turret"] = true,
+	["bob-big-poison-worm-turret"] = true,
+	["bob-big-piercing-worm-turret"] = true,
+	["bob-big-electric-worm-turret"] = true,
+	["bob-giant-worm-turret"] = true,
+}
+
+local function isParanoidalNativeEnemyUnit(name)
+	return PARANOIDAL_NATIVE_ENEMY_UNITS[name]
+		or (type(name) == "string" and (name:match("^bob%-.*%-biter$") or name:match("^bob%-.*%-spitter$")))
+end
+
+local function isRampantEnemyEntity(entity)
+	return entity and entity.valid and universe.enemyAlignmentLookup and universe.enemyAlignmentLookup[entity.name]
+end
+
+local function isParanoidalNativeEnemyBuilding(entity)
+	if not (entity and entity.valid) then
+		return false
+	end
+	if isRampantEnemyEntity(entity) then
+		return false
+	end
+	if VANILLA_ENTITIES[entity.name] or PARANOIDAL_NATIVE_ENEMY_BUILDINGS[entity.name] then
+		return true
+	end
+	return (not universe.ALLOW_OTHER_ENEMIES) and ((entity.type == "unit-spawner") or (entity.type == "turret"))
+end
+
+local function forceAllBasesToRampant(tick)
+	local changed = 0
+	if not universe.bases then
+		return changed
+	end
+
+	for _, base in pairs(universe.bases) do
+		if base then
+			if not base.thisIsRampantEnemy then
+				changed = changed + 1
+			end
+			base.thisIsRampantEnemy = true
+			base.nextMutationTick = tick
+			if base.chunks then
+				for chunk, _ in pairs(base.chunks) do
+					chunk.nextMutationTick = tick
+				end
+			end
+		end
+	end
+
+	return changed
+end
+
+local function findOrCreateRampantBaseForEntity(entity, map, tick)
+	local chunk = getChunkByPosition(map, entity.position)
+	if chunk == -1 then
+		local x, y = positionToChunkXY(entity.position)
+		onChunkGenerated({
+			surface = entity.surface,
+			area = {
+				left_top = {
+					x = x,
+					y = y
+				}
+			}
+		})
+		processPendingChunks(universe, tick, true)
+		if not entity.valid then
+			return nil, true
+		end
+		chunk = getChunkByPosition(map, entity.position)
+	end
+	if chunk == -1 then
+		return nil
+	end
+
+	local base = findNearbyBase(map, chunk, MAXIMUM_BASE_RADIUS, BASE_CHANGING_CHANCE)
+	if not base then
+		base = createBase(map, chunk, tick, true)
+	else
+		base.thisIsRampantEnemy = true
+		base.nextMutationTick = tick
+	end
+
+	return base
+end
+
+local function recordSkippedNativeEnemy(result, name)
+	result.skipped = result.skipped + 1
+	result.skippedNames[name] = (result.skippedNames[name] or 0) + 1
+end
+
+local function formatSkippedNativeEnemies(result)
+	local skippedNames = result.skippedNames
+	local skippedMessage = {}
+	for name, count in pairs(skippedNames) do
+		skippedMessage[#skippedMessage + 1] = name .. "=" .. count
+	end
+	table.sort(skippedMessage)
+	if #skippedMessage == 0 then
+		return ""
+	end
+	return ", skipped_names=" .. table.concat(skippedMessage, ",")
+end
+
+local function replaceNativeEnemiesWithRampant(manual)
+	local result = {converted = 0, destroyed_units = 0, skipped = 0, bases = 0, skippedNames = {}}
+	if not (universe and universe.NEW_ENEMIES and (not universe.ALLOW_OTHER_ENEMIES)) then
+		return result
+	end
+
+	local tick = game.tick
+	result.bases = forceAllBasesToRampant(tick)
+
+	for _, surface in pairs(game.surfaces) do
+		local map = universe.maps and universe.maps[surface.index]
+		if map then
+			local buildings = surface.find_entities_filtered({force = "enemy", type = {"turret", "unit-spawner"}})
+			for _, building in pairs(buildings) do
+				if isParanoidalNativeEnemyBuilding(building) then
+					local oldName = building.name
+					local base, alreadyProcessed = findOrCreateRampantBaseForEntity(building, map, tick)
+					if alreadyProcessed then
+						result.converted = result.converted + 1
+					elseif base then
+						local newEntity = upgradeEntity(building, base.alignment, map, nil, true)
+						if newEntity and newEntity.valid and (newEntity.name ~= oldName) then
+							registerEnemyBaseStructure(map, newEntity, base)
+							result.converted = result.converted + 1
+						else
+							recordSkippedNativeEnemy(result, oldName)
+						end
+					else
+						recordSkippedNativeEnemy(result, oldName)
+					end
+				end
+			end
+
+			local units = surface.find_entities_filtered({force = "enemy", type = "unit"})
+			for _, unit in pairs(units) do
+				if unit.valid and (isParanoidalNativeEnemyUnit(unit.name) or (not unit.name:find("-rampant", 1, true))) then
+					unit.destroy()
+					result.destroyed_units = result.destroyed_units + 1
+				end
+			end
+		end
+	end
+
+	if manual or (result.converted > 0) or (result.destroyed_units > 0) or (result.bases > 0) or (result.skipped > 0) then
+		log("Paranoidal Rampant-only migration: converted=" .. result.converted .. ", destroyed_units=" .. result.destroyed_units .. ", bases=" .. result.bases .. ", skipped=" .. result.skipped .. formatSkippedNativeEnemies(result))
+	end
+
+	return result
 end
 
 local function create_disableAdminMenu(player)
@@ -1729,10 +1912,13 @@ local function onConfigChanged()
 	
     if universe.NEW_ENEMIES then
         rebuildNativeTables(universe)
+		local startupAllowOtherEnemies = settings.startup["rampantFixed--allowOtherEnemies"].value
 		if not universe["NEW_ENEMIES_SIDE"] then
 			setNewEnemySide()
+		elseif not startupAllowOtherEnemies then
+			universe["ALLOW_OTHER_ENEMIES"] = false
 		elseif (universe["NEW_ENEMIES_SIDE"] ~= settings.startup["rampantFixed--newEnemiesSide"].value)
-			or (universe["ALLOW_OTHER_ENEMIES"] ~= settings.startup["rampantFixed--allowOtherEnemies"].value)
+			or (universe["ALLOW_OTHER_ENEMIES"] ~= startupAllowOtherEnemies)
 			then 
 			game.print({"description.rampantFixed--NEW_ENEMIES_SIDE_ignored"})		
 		end
@@ -1754,6 +1940,8 @@ local function onConfigChanged()
             prepMap(surface)
         end
     end
+
+	replaceNativeEnemiesWithRampant(false)
 		
 end
 
@@ -1886,6 +2074,21 @@ local function rampantForceMutations(event)
 end
 
 commands.add_command('rampantForceMutations', "", rampantForceMutations)
+
+local function paranoidalReplaceNativeEnemies(event)
+	local result = replaceNativeEnemiesWithRampant(true)
+	local message = "Paranoidal Rampant-only migration: converted=" .. result.converted .. ", destroyed_units=" .. result.destroyed_units .. ", bases=" .. result.bases .. ", skipped=" .. result.skipped .. formatSkippedNativeEnemies(result)
+	if event and event.player_index then
+		local player = game.get_player(event.player_index)
+		if player then
+			player.print(message)
+			return
+		end
+	end
+	game.print(message)
+end
+
+commands.add_command('paranoidalReplaceNativeEnemies', "", paranoidalReplaceNativeEnemies)
 
 local function rampantCreateCompressedBiter(event)
 	local newEntity = game.players[event.player_index].surface.create_entity({

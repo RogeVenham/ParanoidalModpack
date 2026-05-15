@@ -197,6 +197,11 @@ hide_setting("bool-setting", "bobmods-enemies-healthincrease")
 hide_setting("double-setting", "bobmods-enemies-leviathanfrequency")
 hide_setting("bool-setting", "bobmods-enemies-superspawner")
 
+hide_setting("bool-setting", "rampantFixed--newEnemies")
+hide_setting("bool-setting", "rampantFixed--allowOtherEnemies")
+hide_setting("string-setting", "rampantFixed--newEnemiesSide")
+hide_setting("bool-setting", "rampantFixed--showAdminMenu")
+
 hide_setting("bool-setting", "bobmods-library-recipe-cleanup")
 hide_setting("bool-setting", "bobmods-library-technology-cleanup")
 

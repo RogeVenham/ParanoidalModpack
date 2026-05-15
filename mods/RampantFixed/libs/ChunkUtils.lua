@@ -274,8 +274,11 @@ function chunkUtils.initialScan(chunk, map, tick)
 					base = findNearbyBase(map, chunk, MAXIMUM_BASE_RADIUS, BASE_CHANGING_CHANCE)
 					if base then
 						setChunkBase(map, chunk, base)
+                        if not universe.ALLOW_OTHER_ENEMIES then
+                            base.thisIsRampantEnemy = true
+                        end
 					else
-						base = createBase(map, chunk, tick, thisIsNewEnemyPosition(universe, chunk.x, chunk.y))
+                        base = createBase(map, chunk, tick, (not universe.ALLOW_OTHER_ENEMIES) or thisIsNewEnemyPosition(universe, chunk.x, chunk.y))
 					end
 					thisIsRampantEnemy = base.thisIsRampantEnemy
 				end
@@ -294,7 +297,7 @@ function chunkUtils.initialScan(chunk, map, tick)
 							local enemyBuilding = enemyBuildings[i]							
 							if not buildingHiveTypeLookup[enemyBuilding.name] then
 								local newEntity
-								if VANILLA_ENTITIES[enemyBuilding.name] or ((not universe.ALLOW_OTHER_ENEMIES) and (mRandom()<0.8)) then
+                                if VANILLA_ENTITIES[enemyBuilding.name] or (not universe.ALLOW_OTHER_ENEMIES) then
 									newEntity = upgradeEntity(enemyBuilding, alignment, map, nil, true)
 								end	
 								if newEntity then
@@ -402,8 +405,11 @@ function chunkUtils.mapScanEnemyChunk(chunk, map)
 	local baseTier = 1
 	local newTier = 1
 			
-	local thisIsRampantEnemy = false
-	if universe.NEW_ENEMIES and base and base.thisIsRampantEnemy then
+    local thisIsRampantEnemy = false
+    if universe.NEW_ENEMIES and base and (base.thisIsRampantEnemy or (not universe.ALLOW_OTHER_ENEMIES)) then
+        if not universe.ALLOW_OTHER_ENEMIES then
+            base.thisIsRampantEnemy = true
+        end
 		thisIsRampantEnemy = true
 		changingEntities = base.changingEntities
 		baseTier = mMax(base.tier-base.tierHandicap, 1)
@@ -505,12 +511,15 @@ function chunkUtils.mapScanEnemyChunk(chunk, map)
  			base = findNearbyBase(map, chunk, MAXIMUM_BASE_RADIUS, BASE_CHANGING_CHANCE)
 			if base then
 				setChunkBase(map, chunk, base)
+                if not universe.ALLOW_OTHER_ENEMIES then
+                    base.thisIsRampantEnemy = true
+                end
 			else
 				local FactionCountsIterator = next(FactionCounts, nil)
 				if FactionCountsIterator then
 					base = createBase(map, chunk, game.tick, true)
 				else	
-					base = createBase(map, chunk, game.tick, thisIsNewEnemyPosition(universe, chunk.x, chunk.y))
+                    base = createBase(map, chunk, game.tick, (not universe.ALLOW_OTHER_ENEMIES) or thisIsNewEnemyPosition(universe, chunk.x, chunk.y))
 				end	
 				setChunkBase(map, chunk, base)
 			end

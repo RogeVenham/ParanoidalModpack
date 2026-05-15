@@ -4,7 +4,8 @@ if not mods["bobenemies"] then return end
 -- RSO уже не будет их размещать (fillBobEnemies очищен в rso-mod/resourceconfigs/bobenemies.lua).
 -- Этот патч — дополнительная страховка: убирает autoplace из прототипов на случай
 -- если RSO отключён или другой мод попытается их разместить нативным способом.
--- Ванильные biter-spawner/spitter-spawner остаются — RampantFixed апгрейдит их до своих версий.
+-- Ванильные biter-spawner/spitter-spawner остаются только как seed-сущности:
+-- RampantFixed должен апгрейдить их до своих версий, а result_units чистятся отдельно.
 
 local BOB_SPAWNERS = {
     "bob-biter-spawner",
