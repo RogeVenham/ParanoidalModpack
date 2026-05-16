@@ -1,0 +1,12 @@
+{
+  "name": "chunk-pregenerator",
+  "version": "1.0.1",
+  "title": "Chunk Pregenerator",
+  "author": "Kerutaka",
+  "homepage": "https://mods.factorio.com/mod/chunk-pregenerator",
+  "description": "A simple chunk pre-generation mod that generates chunks (maps) incrementally in the background while minimising server load.\nThis aims to prevent asynchronous crashes during multiplayer sessions.",
+  "factorio_version": "1.1.110",
+  "dependencies": [
+    "base"
+  ]
+}

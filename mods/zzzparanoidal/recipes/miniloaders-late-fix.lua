@@ -1,0 +1,135 @@
+---@diagnostic disable: undefined-global
+
+if not mods["miniloader"] then
+    return
+end
+
+local function set_recipe_result_count(recipe, result_count)
+    if not recipe or result_count == nil then
+        return
+    end
+
+    recipe.result_count = result_count
+    if recipe.results and #recipe.results == 1 then
+        recipe.results[1].amount = result_count
+    end
+end
+
+local function set_or_create_loader_recipe(recipe_name, ingredients, result_item, result_count)
+    local recipe = data.raw.recipe[recipe_name]
+    if recipe then
+        bobmods.lib.recipe.set_ingredients(recipe_name, ingredients)
+        set_recipe_result_count(recipe, result_count)
+        set_recipe_result_count(recipe.normal, result_count)
+        set_recipe_result_count(recipe.expensive, result_count)
+        return
+    end
+
+    if not data.raw.item[result_item] then
+        return
+    end
+
+    data:extend({
+        {
+            type = "recipe",
+            name = recipe_name,
+            enabled = false,
+            energy_required = 1,
+            ingredients = ingredients,
+            result = result_item,
+            result_count = result_count,
+        },
+    })
+end
+
+-- Standard miniloaders: always 1 *-underground-belt + 8 *-inserter -> 1
+set_or_create_loader_recipe("basic-miniloader", {
+    { "basic-underground-belt", 1 },
+    { "burner-inserter", 8 },
+}, "basic-miniloader", 1)
+
+set_or_create_loader_recipe("miniloader", {
+    { "basic-miniloader", 1 },
+    { "underground-belt", 1 },
+    { "inserter", 8 },
+}, "miniloader", 1)
+
+set_or_create_loader_recipe("fast-miniloader", {
+    { "miniloader", 1 },
+    { "fast-underground-belt", 1 },
+    { "long-handed-inserter", 8 },
+}, "fast-miniloader", 1)
+
+set_or_create_loader_recipe("express-miniloader", {
+    { "fast-miniloader", 1 },
+    { "express-underground-belt", 1 },
+    { "fast-inserter", 8 },
+}, "express-miniloader", 1)
+
+set_or_create_loader_recipe("turbo-miniloader", {
+    { "express-miniloader", 1 },
+    { "turbo-underground-belt", 1 },
+    { "turbo-inserter", 8 },
+}, "turbo-miniloader", 1)
+
+set_or_create_loader_recipe("ultimate-miniloader", {
+    { "turbo-miniloader", 1 },
+    { "ultimate-underground-belt", 1 },
+    { "express-inserter", 8 },
+}, "ultimate-miniloader", 1)
+
+-- Filter miniloaders: same pattern for filter inserters.
+set_or_create_loader_recipe("basic-filter-miniloader", {
+    { "basic-underground-belt", 1 },
+    { "burner-filter-inserter", 8 },
+}, "basic-filter-miniloader", 1)
+
+if data.raw.technology["basic-miniloader"] and data.raw.recipe["basic-filter-miniloader"] then
+    bobmods.lib.tech.add_recipe_unlock("basic-miniloader", "basic-filter-miniloader")
+end
+
+local basic_miniloader_item = data.raw.item["basic-miniloader"]
+local basic_filter_miniloader_item = data.raw.item["basic-filter-miniloader"]
+local basic_filter_miniloader_recipe = data.raw.recipe["basic-filter-miniloader"]
+
+if basic_miniloader_item and basic_filter_miniloader_item then
+    local filter_order = (basic_miniloader_item.order or "e[miniloader]-1[basic-underground-belt]") .. "-a[filter]"
+
+    basic_filter_miniloader_item.subgroup = basic_miniloader_item.subgroup
+    basic_filter_miniloader_item.order = filter_order
+
+    if basic_filter_miniloader_recipe then
+        basic_filter_miniloader_recipe.subgroup = basic_miniloader_item.subgroup
+        basic_filter_miniloader_recipe.order = filter_order
+    end
+end
+
+set_or_create_loader_recipe("filter-miniloader", {
+    { "basic-filter-miniloader", 1 },
+    { "underground-belt", 1 },
+    { "yellow-filter-inserter", 8 },
+}, "filter-miniloader", 1)
+
+set_or_create_loader_recipe("fast-filter-miniloader", {
+    { "filter-miniloader", 1 },
+    { "fast-underground-belt", 1 },
+    { "red-filter-inserter", 8 },
+}, "fast-filter-miniloader", 1)
+
+set_or_create_loader_recipe("express-filter-miniloader", {
+    { "fast-filter-miniloader", 1 },
+    { "express-underground-belt", 1 },
+    { "filter-inserter", 8 },
+}, "express-filter-miniloader", 1)
+
+set_or_create_loader_recipe("turbo-filter-miniloader", {
+    { "express-filter-miniloader", 1 },
+    { "turbo-underground-belt", 1 },
+    { "turbo-filter-inserter", 8 },
+}, "turbo-filter-miniloader", 1)
+
+set_or_create_loader_recipe("ultimate-filter-miniloader", {
+    { "turbo-filter-miniloader", 1 },
+    { "ultimate-underground-belt", 1 },
+    { "express-filter-inserter", 8 },
+}, "ultimate-filter-miniloader", 1)
