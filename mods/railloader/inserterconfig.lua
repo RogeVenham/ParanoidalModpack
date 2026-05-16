@@ -138,12 +138,13 @@ end
 
 local function configure_inserter_control_behavior(inserter)
   local behavior = inserter.get_or_create_control_behavior()
-  behavior.circuit_condition = {
-    condition = {
-      comparator = "=",
-      first_signal = {type = "virtual", name = "railloader-disable"},
-    }
-  }
+  behavior.circuit_mode_of_operation = defines.control_behavior.inserter.circuit_mode_of_operation["set_filters"]
+  -- behavior.circuit_condition = {
+  --   condition = {
+  --     comparator = "=",
+  --     first_signal = {type = "virtual", name = "railloader-disable"},
+  --   }
+  -- }
 end
 
 function M.connect_and_configure_inserter_control_behavior(inserter, chest, pass)

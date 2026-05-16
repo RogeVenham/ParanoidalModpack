@@ -1,3 +1,5 @@
+---@diagnostic disable: undefined-global
+
 data:extend{
   {
     type = "technology",
@@ -12,6 +14,14 @@ data:extend{
       {
         type = "unlock-recipe",
         recipe = "railunloader",
+      },
+      {
+        type = "unlock-recipe",
+        recipe = "railloader-fluid",
+      },
+      {
+        type = "unlock-recipe",
+        recipe = "railunloader-fluid",
       },
     },
     prerequisites = { "railway" },

@@ -1,6 +1,9 @@
+---@diagnostic disable: undefined-global
+
 local bulk = require "bulk"
 local configchange = require "configchange"
 local delaydestroy = require "delaydestroy"
+local fluid_transfer = require "fluidtransfer"
 local ghostconnections = require "ghostconnections"
 local inserter_config = require "inserterconfig"
 local util = require "util"
@@ -14,11 +17,13 @@ local allowed_items_setting = settings.global["railloader-allowed-items"].value
 local function on_init()
   global.previous_opened_blueprint_for = {}
   delaydestroy.on_init()
+  fluid_transfer.on_init()
   inserter_config.on_init()
 end
 
 local function on_load()
   delaydestroy.on_load()
+  fluid_transfer.on_load()
   inserter_config.on_load()
 end
 
@@ -139,6 +144,25 @@ local function create_entities(proxy, tags, rail_poss)
     rail.minable = false
   end
 
+  if util.is_fluid_station_name(proxy.name) then
+    local station = surface.create_entity{
+      name = util.station_name_for_proxy_name(proxy.name),
+      position = position,
+      force = force,
+    }
+    station.last_user = last_user
+
+    local structure = surface.create_entity{
+      name = util.structure_name_for_station_name(proxy.name, direction),
+      position = position,
+      force = force,
+    }
+    structure.destructible = false
+
+    fluid_transfer.register_if_wagon_present(station)
+    return
+  end
+
   -- place chest
   local chest = surface.create_entity{
     name = "rail" .. type .. "-chest",
@@ -161,6 +185,7 @@ local function create_entities(proxy, tags, rail_poss)
   -- place cargo wagon inserters
   local inserter_name =
     "rail" .. type .. (allowed_items_setting == "any" and "-universal" or "") .. "-inserter"
+  local first_inserter
   for i=1,num_inserters do
     -- alternate direction to support half-size wagons sticking out both sides of the (un)loader
     local inserter_direction = (direction + (i-1) * 4) % 8
@@ -172,23 +197,19 @@ local function create_entities(proxy, tags, rail_poss)
     }
     inserter.destructible = false
     sync_interface_inserters(inserter)
-    if i==1 then
-      temp = inserter,
-    inserter_config.connect_and_configure_inserter_control_behavior(inserter, temp, true)
+    if i == 1 then
+      first_inserter = inserter
+      inserter_config.connect_and_configure_inserter_control_behavior(inserter, first_inserter, true)
     else
-    inserter_config.connect_and_configure_inserter_control_behavior(inserter, temp, false)
+      inserter_config.connect_and_configure_inserter_control_behavior(inserter, first_inserter, false)
     end
   end
 
   inserter_config.configure_or_register_loader(chest)
 
   -- place structure
-  local structure_name = "rail" .. type .. "-structure-vertical"
-  if direction == defines.direction.east or direction == defines.direction.west then
-    structure_name = "rail" .. type .. "-structure-horizontal"
-  end
   local placed = surface.create_entity{
-    name = structure_name,
+    name = util.structure_name_for_station_name(proxy.name, direction),
     position = position,
     force = force,
   }
@@ -239,6 +260,10 @@ local function on_built(event)
 end
 
 local function on_railloader_mined(entity, buffer)
+  if util.is_fluid_station_name(entity.name) then
+    fluid_transfer.unregister(entity)
+  end
+
   local entities = entity.surface.find_entities_filtered{
     area = entity.bounding_box,
   }
@@ -248,7 +273,7 @@ local function on_railloader_mined(entity, buffer)
         buffer.insert(ent.held_stack)
       end
       ent.destroy()
-    elseif string.find(ent.name, "^railu?n?loader%-structure") then
+    elseif util.is_railloader_structure_name(ent.name) then
       ent.destroy()
     elseif ent.type == "straight-rail" then
       local success = ent.destroy()
@@ -270,11 +295,11 @@ local died_direction
 local function on_post_entity_died(event)
   local ghost = event.ghost
   if ghost then
-    local loader_type = util.railloader_type(ghost.ghost_name)
-    if loader_type then
+    local proxy_name = util.proxy_name_for_station_name(ghost.ghost_name)
+    if proxy_name then
       local new_ghost = ghost.surface.create_entity{
         name = "entity-ghost",
-        inner_name = "rail" .. loader_type .. "-placement-proxy",
+        inner_name = proxy_name,
         force = ghost.force,
         direction = died_direction,
         position = ghost.position,
@@ -346,26 +371,30 @@ local function on_blueprint(event)
   if not entities then return end
 
   for _, bp_entity in pairs(entities) do
-    if bp_entity.name == "railloader-chest" or bp_entity.name == "railunloader-chest" then
-      local chest_entity = player.surface.find_entities_filtered{
-        type = "container",
-        position = bp_entity.position,
-      }[1]
-      if not chest_entity then goto continue end
+    local proxy_name = util.proxy_name_for_station_name(bp_entity.name)
+    if proxy_name then
+      local station_entity
+      for _, entity in ipairs(player.surface.find_entities_filtered{ position = bp_entity.position }) do
+        if entity.name == bp_entity.name then
+          station_entity = entity
+          break
+        end
+      end
+      if not station_entity then goto continue end
 
       local rail = player.surface.find_entities_filtered{
         type = "straight-rail",
-        area = chest_entity.bounding_box,
+        area = station_entity.bounding_box,
       }[1]
       if not rail then goto continue end
 
-      bp_entity.name = (bp_entity.name == "railloader-chest")
-        and "railloader-placement-proxy"
-        or "railunloader-placement-proxy"
+      bp_entity.name = proxy_name
       -- base direction on direction of rail
       bp_entity.direction = rail.direction
       -- preserve chest limit
-      bp_entity.tags = { bar = chest_entity.get_inventory(defines.inventory.chest).get_bar() }
+      if bp_entity.name == "railloader-placement-proxy" or bp_entity.name == "railunloader-placement-proxy" then
+        bp_entity.tags = { bar = station_entity.get_inventory(defines.inventory.chest).get_bar() }
+      end
     end
     ::continue::
   end
@@ -376,6 +405,11 @@ end
 local function on_setting_changed(event)
   allowed_items_setting = settings.global["railloader-allowed-items"].value
   inserter_config.on_setting_changed(event)
+end
+
+local function on_train_changed_state(event)
+  inserter_config.on_train_changed_state(event)
+  fluid_transfer.on_train_changed_state(event)
 end
 
 -- setup remotes
@@ -396,11 +430,11 @@ script.on_event({es.on_built_entity, es.on_robot_built_entity, es.script_raised_
 script.on_event({es.on_player_mined_entity, es.on_robot_mined_entity, es.script_raised_destroy}, on_mined)
 script.on_event(es.on_robot_pre_mined, on_robot_pre_mined)
 script.on_event(es.on_entity_died, on_mined)
-script.on_event(es.on_post_entity_died, on_post_entity_died, {{filter = "type", type = "container"}})
+script.on_event(es.on_post_entity_died, on_post_entity_died)
 
 script.on_event(es.on_gui_closed, on_gui_closed)
 script.on_event(es.on_player_setup_blueprint, on_blueprint)
 
-script.on_event(es.on_train_changed_state, inserter_config.on_train_changed_state)
+script.on_event(es.on_train_changed_state, on_train_changed_state)
 
 script.on_event(defines.events.on_runtime_mod_setting_changed, on_setting_changed)

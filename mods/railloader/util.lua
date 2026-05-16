@@ -1,3 +1,5 @@
+---@diagnostic disable: undefined-global
+
 local M = {}
 
 -- Position adjustments
@@ -62,6 +64,52 @@ function M.position_key(entity)
   return entity.surface.name .. "@" .. entity.position.x .. "," .. entity.position.y
 end
 
+function M.is_fluid_station_name(name)
+  return name ~= nil and string.find(name, "^railu?n?loader%-fluid%-") ~= nil
+end
+
+function M.is_railloader_structure_name(name)
+  return name ~= nil and string.find(name, "^railu?n?loader%-.*structure") ~= nil
+end
+
+function M.proxy_name_for_station_name(name)
+  local loader_type = M.railloader_type(name)
+  if not loader_type then
+    return nil
+  end
+
+  local qualifier = M.is_fluid_station_name(name) and "-fluid" or ""
+  return "rail" .. loader_type .. qualifier .. "-placement-proxy"
+end
+
+function M.station_name_for_proxy_name(name)
+  local loader_type = M.railloader_type(name)
+  if not loader_type then
+    return nil
+  end
+
+  if M.is_fluid_station_name(name) then
+    return "rail" .. loader_type .. "-fluid-buffer"
+  end
+
+  return "rail" .. loader_type .. "-chest"
+end
+
+function M.structure_name_for_station_name(name, direction)
+  local loader_type = M.railloader_type(name)
+  if not loader_type then
+    return nil
+  end
+
+  local qualifier = M.is_fluid_station_name(name) and "-fluid" or ""
+  local orientation = "vertical"
+  if direction == defines.direction.east or direction == defines.direction.west then
+    orientation = "horizontal"
+  end
+
+  return "rail" .. loader_type .. qualifier .. "-structure-" .. orientation
+end
+
 function M.railloader_inserters(entity, pattern)
   local out = {}
   local inserters = entity.surface.find_entities_filtered{
@@ -119,6 +167,30 @@ function M.find_railloaders_from_chest(chest)
   for _, e in ipairs(es) do
     if M.is_railloader_chest(e) then
       out[#out+1] = e
+    end
+  end
+  return out
+end
+
+function M.find_fluid_wagons_from_station(station)
+  return station.surface.find_entities_filtered{
+    type = "fluid-wagon",
+    area = M.box_centered_at(station.position, 0.6),
+    force = station.force,
+  }
+end
+
+function M.find_fluid_stations_from_wagon(wagon)
+  local stations = wagon.surface.find_entities_filtered{
+    type = "storage-tank",
+    area = M.box_centered_at(wagon.position, 0.6),
+    force = wagon.force,
+  }
+
+  local out = {}
+  for _, station in ipairs(stations) do
+    if M.is_fluid_station_name(station.name) then
+      out[#out+1] = station
     end
   end
   return out

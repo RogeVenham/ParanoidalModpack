@@ -161,4 +161,5 @@ data:extend{univ}
 local interface_inserter = util.table.deepcopy(univ)
 interface_inserter.name = "railloader-interface-inserter"
 interface_inserter.allow_custom_vectors = true
+interface_inserter.filter_count = nil
 data:extend{interface_inserter}
